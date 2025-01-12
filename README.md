@@ -85,12 +85,23 @@ In order to expedite the process of finding text/keywords in a file, it will be 
 
 ## Code Execution
 ### Virtual environent
-When running locally, it is recommended to run this code in a virtual environemt, such as pipenv to avoid installing dependencies on the main python library. 
+When running locally, it is recommended to run this code in a virtual environemt, such as pipenv to avoid installing dependencies on the main python library. For that, it is necessary to install the module `pipenv`. This can be done one of two ways, and both make it available to all projects.
 
-### Install dependencies
-`pip install requirements.txt`
+1. Directly with `pip` from the command line, using the command `pip install pipenv` 
+2. Using a package manager, such as `homebrew`, with the command `brew install pipenv`
 
+Once installed, navigate to the top of directory of this project in a terminal and issue the command `pip shell` to create and switch the context of the terminal to the new virtual environment. 
 
-
+### Dependencies
+Once in a virtual environment, install the necessary dependencies by simply run the following command in the terminal. 
+`pip install -r requirements.txt`
 
 ## Testing
+
+To run the unit tests, use the `coverage` module by entering the following command at the root level of this project in a terminal
+
+`coverage run -m pytest ./tests/unit`
+
+To see how much coverage the unit tests have, you can run the command
+
+`coverage report -m`
