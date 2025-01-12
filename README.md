@@ -42,27 +42,9 @@ This is the most important step because it provides the data that the next steps
 
 The code will query each and every single file, recursing into directories, and pull every line of logs. The data for each file will be aggregated into an array to maintain the order in which the log entry arrive when converting to JSON. 
 
-<!-- 
-Given that there could be any number of formats for logs, it is important to normalize each log entry into an object with the most common and useful fields in a log.
-
-These fields are, in no particular order:
- - timestamp
- - message
- - log level (if any)
- - metadata (if any)
-
- Information considered metada in this case are `user information`, `network information`, `log file`. -->
-
 Additionally, performance can be an issue when there is a large number of files that need to be parsed. This is particularly important for REST requests that can and will timeout if the process of loading the data is long-lived.
 
 To expedite processing of data, each log file within the `/var/log` directory will be read in parallel using a multi-processing approach. 
- 
-<!-- #### Aggregate log data
-Once the data from log files has been normalized, it is necessary to aggregate the data into a specific data structure that will maintain the data from the log files before returning it to the caller.
-
-The options in terms of aggregation will likely be based on timestamp to facilitate the return of newest log entries first in a response to a REST call. 
-
-Given that maintaining large amounts log data in memory can become problem, even if normalized, it is necessary to work with a data schema and structures that minimize memory usage to prevent memory-related issues. -->
 
 #### Return logs for specific file
 In order to support this case easily, the general purpose log parsing and aggregation code will be modular so that it can either be called directly from an endpoint with a file name or called from another function that is in charge of going over all files in a directory. 
@@ -78,9 +60,10 @@ In order to expedite the process of finding text/keywords in a file, it will be 
  *Memory usage*
 
 ## Tech Stack requirements
-- Python (3.13)
+- Python (3.13.1)
+- Flask (3.1.3)
 - PipEnv (2024.4.0)
-- Flask
+- coverage (7.6.10)
 
 
 ## Code Execution
