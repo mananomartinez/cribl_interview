@@ -9,7 +9,7 @@ def read_log_file(filepath: str, n_entries: int = 0) -> list:
     log_entries = []
     with open(filepath, 'r') as file:
         for line in file:
-            log_entries.append(line)
+            log_entries.append(line.rstrip('\n'))
     return log_entries
 
 def read_all_log_files(n_entries: int = 0) -> list:
