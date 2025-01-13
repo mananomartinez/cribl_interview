@@ -1,7 +1,7 @@
 import os
 from concurrent.futures import ThreadPoolExecutor
 
-def search_in_file(file_path, keyword, results):
+def search_in_file(file_path: str, keyword: str, results: dict) -> None:
     """
     Search for the text in a single file.
     """
@@ -17,7 +17,7 @@ def search_in_file(file_path, keyword, results):
     except Exception as e:
         print(f"Error reading {file_path}: {e}")
 
-def search_directory(keyword):
+def search_directory(keyword: str) -> dict:
     """
     Search for the text in all files in the directory recursively.
     """

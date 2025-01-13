@@ -1,16 +1,25 @@
 import os
-import json
+from concurrent.futures import ThreadPoolExecutor
+from collections import deque
 
-def read_log_file(filepath: str, n_entries: int = 0) -> list:
+
+def read_log_file(file_path: str, all_log_entries: dict, n_entries: int = 0) -> list:
     """
-    Parses a log file and returns every line.
+    Parses a log file and returns every line ordered by the latest first.
     Assumes each log entry ends with a new line.
     """
-    log_entries = []
-    with open(filepath, 'r') as file:
-        for line in file:
-            log_entries.append(line.rstrip('\n'))
-    return log_entries
+    log_entries = deque()
+    try:
+        with open(file_path, 'r') as file:
+            for line in file:
+                log_entries.appendleft(line.strip('\n'))
+
+    except Exception as e:
+        print(f"Error reading: {file_path}. Won't be included in the response")
+
+    if log_entries:
+        all_log_entries[file_path] = list(log_entries)
+
 
 def read_all_log_files(n_entries: int = 0) -> list:
     """
@@ -20,20 +29,21 @@ def read_all_log_files(n_entries: int = 0) -> list:
     """
 
     log_directory = os.environ.get('LOG_DIRECTORY', '/var/log')
+    
     all_log_entries = {}
+    tasks = []
 
-    # Traverse directory
-    for root, dirs, files in os.walk(log_directory):
-        for file in files:
-            filepath = os.path.join(root, file)
-            try:
-                entries = read_log_file(filepath)
-                if entries:
-                    all_log_entries[filepath] = json.dumps(entries)
-                else:
-                    all_log_entries[filepath] = "File is empty."
-            except Exception as e:
-                print(f"Error reading: {file}. Won't be included in the response")
+    # Traverse directory and read each log file in a separate thread
+    with ThreadPoolExecutor() as executor:
+        for root, _, files in os.walk(log_directory):
+            for file in files:
+                file_path = os.path.join(root, file)
+                task = executor.submit(read_log_file, file_path, all_log_entries)
+                tasks.append(task)
+
+        # Wait for each file search task to complete
+        for task in tasks:
+            task.result()
 
     # Display aggregated logs
     return all_log_entries
