@@ -62,7 +62,7 @@ The search will be done in parallel and each matching line in a file will be agg
  *Memory usage*
 
 ## Tech Stack requirements
-- Python (3.13.1)
+- Python (3.1.0)
 - Flask (3.1.3)
 - PipEnv (2024.4.0)
 - coverage (7.6.10)
@@ -75,7 +75,7 @@ This endpoint returns a message about the server.
 - This endpoint will traverse the log directory and aggregate the logs for all the files it finds in the directory, if they are readable. 
 - If no files exist or none of them are readable, returns error with status code `404`.
 
-### `get single log file endpoint (/log)`
+### `get single log file endpoint (/log?file=)`
 - This endpoint will traverse the log directory for a file with the name provided in the `file` query parameter and return the contents if it exists and it is readable. 
 - If no file name is provided in the `file` query parameter, returns error with status code `400`.
 - If the file does not exist, returns error with status code 404.
