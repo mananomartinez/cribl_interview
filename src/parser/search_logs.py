@@ -5,12 +5,14 @@ def search_in_file(file_path: str, keyword: str, results: dict) -> None:
     """
     Search for the text in a single file.
     """
+    
     found_in_file = []
+    
     try:
         with open(file_path, 'r') as file:
             for line in file:
                 if keyword in line:
-                    found_in_file.append(line.strip())
+                    found_in_file.append(line.strip('\n'))
             if found_in_file:
                 results[file_path] = found_in_file
 
@@ -20,6 +22,7 @@ def search_in_file(file_path: str, keyword: str, results: dict) -> None:
 def search_directory(keyword: str) -> dict:
     """
     Search for the text in all files in the directory recursively.
+    
     """
     results = {}
     tasks = []
