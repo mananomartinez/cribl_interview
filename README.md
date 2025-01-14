@@ -38,13 +38,7 @@ There is potential to double the deal size with this customer if you can success
 This assignment can be broken up into multiple milestones that, following a specific sequence, can yield the desired results. The following sections outline what each of these milestones are  
 
 #### Access log data
-This is the most important step because it provides the data that the next steps will manipulate and return to the caller of an endpoint. 
-
-The code will query each and every single file, recursing into directories, and pull every line of logs. The data for each file will be aggregated into an array to maintain the order in which the log entry arrive when converting to JSON. 
-
-Additionally, performance can be an issue when there is a large number of files that need to be parsed. This is particularly important for REST requests that can and will timeout if the process of loading the data is long-lived. 
-
-To expedite processing of data, each log file within the `/var/log` directory will be read in parallel using a multi-processing approach. 
+The data for a specific file will be aggregated into an array where the order in which the log entry have been added is maintained before converting to JSON. 
 
 #### Return logs for specific file
 In order to support this case easily, the general purpose log parsing and aggregation code will be modular so that it can either be called directly from an endpoint with a file name or called from another function that is in charge of going over all files in a directory. 
@@ -52,7 +46,11 @@ In order to support this case easily, the general purpose log parsing and aggreg
 #### Find specific text/keyword matches
 In order to expedite the process of finding text/keywords in a file, it will be simpler to perform the search in the files themselves and return the log entries that contain the matching text. 
 
-The search will be done in parallel and each matching line in a file will be aggregated to a final hash map that aggregates the results per file.
+To ensure that the code is performant, the search will be done in parallel and each matching line in a file will be aggregated to a final hash map that aggregates the results per file.
+
+#### Return specific number of entries 
+An endponing 
+
 
 #### Considerations 
 
@@ -71,17 +69,22 @@ The search will be done in parallel and each matching line in a file will be agg
 ### `index endpoint (/)`
 This endpoint returns a message about the server. 
 
-### `get all logs endpoint (/logs)`
-- This endpoint will traverse the log directory and aggregate the logs for all the files it finds in the directory, if they are readable. 
-- If no files exist or none of them are readable, returns error with status code `404`.
-
 ### `get single log file endpoint (/log?file=)`
 - This endpoint will traverse the log directory for a file with the name provided in the `file` query parameter and return the contents if it exists and it is readable. 
+
 - If no file name is provided in the `file` query parameter, returns error with status code `400`.
+- If the file does not exist, returns error with status code 404.
+
+### `get _n_ entries for a specific log file endpoint (/log/<file>?entries=)`
+- This endpoint will obtain N log entries in the specified file with the name provided in the `<file>` path and using the `entries` parameter.
+
+- If the value entered for `entries` is less than or equal to 0 or not a number, an error will be returned with status code `400`
+- If nothing is entered for the `entries` query parameter, returns error with status code `400`.
 - If the file does not exist, returns error with status code 404.
 
 ### `search log files endpoint (/search?keyword=)`
 - This endpoint will traverse the log directory and aggregte the contents of every log file it finds. 
+
 - If no keyword/text is provided in the `keyword` query parameterreturns error with status code `400`.
 - If the file does not exist, returns error with status code `404`.
 
