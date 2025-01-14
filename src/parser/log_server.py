@@ -51,16 +51,22 @@ def search_logs():
 
 @app.route('/log/<file>')
 def read_number_of_entries(file: str):
-    entries = int(request.args.get('entries'))
-    
-    if not entries:
-        return make_response("No number of enties provided.", 400)
-    
-    # Remove quotes from the keyword, if any. 
-    results = read_n_log_entries(file, entries)
-    
-    if type(results) == dict:
-        return results 
-    else:
-        return make_response(results, 404)
+    try: 
+        entries = int(request.args.get('entries'))
+
+        if not entries:
+            return make_response("No number of entries provided.", 400)
+        elif entries <= 0:
+            return make_response("Invalid number of entries provided. Must be a positive integer.", 400)
+        
+        # Remove quotes from the keyword, if any. 
+        results = read_n_log_entries(file, entries)
+        
+        if type(results) == dict:
+            return results 
+        else:
+            return make_response(results, 404)
+    except Exception as e:
+        return make_response(e, 500)
+
 
