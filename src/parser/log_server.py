@@ -27,7 +27,8 @@ def get_single_log_file():
     
     # Construct the dir since the file name is not a full path
     dir = os.environ.get('LOG_DIRECTORY', '/var/log')
-    results = read_log_file(dir + "/" + file_name)
+    results = {}
+    read_log_file(dir + "/" + file_name, results)
     
     if results:
         return results
