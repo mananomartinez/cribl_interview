@@ -3,8 +3,21 @@ import json
 
 def make_remote_call(data: dict) -> dict:
     """
-    Make requests to a remote server to obtain log information
+    Constructs and sends an HTTP GET request to a remote host based on the action specified. 
+    The method supports several predefined actions, each corresponding to different URIs and query parameters.
+    It returns the JSON response from the remote host or an error message if the request fails.
 
+    Parameters:
+    - data (dict): A dictionary containing the following keys:
+      - "host" (str): The base host for constructing the request URL.
+      - "action" (str): The action to perform, which must be one of the predefined actions (`parse`, `search`, `log`, `entries`).
+      - "file_name" (str, optional): The name of the file to parse.
+      - "entries" (str, optional): The number of entries to obtain from a specific file.
+      - "keyword" (str, optional): The keyword to search for in the logs directory.
+
+    Returns:
+        - dict: The JSON response from the remote host if the request is successful.
+        - dict: An error message if the request fails or if the input data is invalid.
     """
     actions = {
         "parse": { 
@@ -52,7 +65,7 @@ def make_remote_call(data: dict) -> dict:
                 url = base_host + uri
             else:
                 return {"ERROR": f"Invalid parameters for {action}."}
-
+            
             res = requests.get(url)
 
             if res.status_code == 200:
@@ -61,4 +74,6 @@ def make_remote_call(data: dict) -> dict:
                 return {"ERROR": f"Remote host ({base_host}) returned status {res.status_code}"}
         else:
             return {"ERROR": f"Unknown action {action}"}
+    else:
+        return {"ERROR": f"Missing host value (required)."}
         
