@@ -153,8 +153,6 @@ It is possible to run multiple instances of this server on the same machine. To 
 
 To achieve this, simply add `--port=` to the end of the command. For example: `flask --app ./src/parser/log_server.py run --port=8000`
 
-This 
-
 ### Optional
 To change the log directory to parse from `/var/log`, set the `LOG_DIRECTORY` environment variable before running the server. Otherwise, `/var/log` will be the default. 
 
