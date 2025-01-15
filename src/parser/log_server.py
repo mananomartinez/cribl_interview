@@ -1,4 +1,5 @@
 import os
+import sys
 from flask import Flask, request, make_response
 from parser import read_single_file, search_directory, read_n_log_entries, read_all_log_files, make_remote_call
 
@@ -132,7 +133,7 @@ def read_number_of_entries(file: str):
         return make_response(e, 500)
 
 @app.route('/remote', methods=['POST'])
-def receive_data():
+def remote_server_queries():
     """
     Endpoint to access a remote instance of this server 
     to obtain log information from that host.
@@ -142,7 +143,7 @@ def receive_data():
       - Required values:
         - host: The host IP or domain name with port, if not 80
         - action: what functionality to access in remote instance
-          - 'parse', 'log', 'entries', or 'search'.
+          - 'logs', 'log', 'entries', or 'search'.
       - Action values:
         - file_name: Required for single 'log' and 'entries' actions
         - entries: Positive integer for number of entries to retrieve from a log file
@@ -156,9 +157,10 @@ def receive_data():
 
     # Process the received data
     if data:
-        resp = make_remote_call(data)
-        if "ERROR" in resp:
-            return make_response(f"Error making request to host {data.get("host")}: { resp['ERROR']}", 400)
+        resp =  make_remote_call(data)
+        return resp
+        # if "ERROR" in resp:
+        #     return make_response(f"Error making request to host {data.get("host")}: { resp['ERROR']}", 400)
     else:
         return make_response("Invalid payload.", 400)
     # Return a response

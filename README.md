@@ -97,18 +97,19 @@ This endpoint returns a message about the server.
 
 ### `/remote` -- access remote log files endpoint 
 - Method: `POST`
-- This endpoint provides acces to a remote deployment of this server to obtain log information from that system. 
+- This endpoint provides acces to hosts running instances of this server to obtain log information from that system. 
 
-- The endpoint takes a JSON payload that requires a target `host` (IP address or domain name and por) and an `action` to indicate the endpoint to call. 
-
+- The endpoint takes a JSON payload uses the `host` (IP address or domain name and port) as a key to execute an  `action`. 
+  - Each `host` value must be unique given that having the same key twice would result in failure due to invalid JSON. 
+  - Action is a short-hand to a specific endpoints and the parameters needed to sucessfully call it. 
   - The action mappings are as follows, along with the other fields required for each one: 
-    - parse = /logs
+    - logs = `/logs`
       - None
-    - search = /search?keyword=
+    - search = `/search?keyword=`
       - `keyword`
-    - log = /log?file_name=
+    - log = `/log?file_name=`
       - `file_name` of the target file in the remote host 
-    - entries = /log/<file_name>?entries=
+    - entries = `/log/<file_name>?entries=`
       - `file_name` of the target file in the remote host 
       - `entries` positive integer value for the number of log entries to retrieve 
 
@@ -116,10 +117,14 @@ This endpoint returns a message about the server.
 
  ```json
     {
-        "host":"localhost:8000",
-        "action":"entries",
-        "file_name":"install.log",
-        "entries": 5
+        "localhost:8000":{
+            "action":"entries",
+            "file_name":"install.log",
+            "entries": 5
+        },
+        "localhost:9000":{
+            "action":"logs"
+        }
     }
 ```
 
