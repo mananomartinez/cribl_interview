@@ -1,6 +1,6 @@
 import os
 from flask import Flask, request, make_response
-from parser import read_single_file, search_directory, read_n_log_entries, read_all_log_files
+from parser import read_single_file, search_directory, read_n_log_entries, read_all_log_files, make_remote_call
 
 app = Flask(__name__)
 
@@ -25,20 +25,19 @@ def get_single_log_file():
     # Remove quotes from the file_name, if any. 
     file_name = file_name.replace('"', '').replace("'", "")
     log_directory = os.environ.get('LOG_DIRECTORY', '/var/log')
-    
+
     # Check if the log_directory is already defined in the file_name
-    if (file_name.find(log_directory) == -1):    
+    if (file_name.find(log_directory) == -1):
         file_path = log_directory + "/" + file_name
     else: 
         file_path = file_name
 
-    
     results = {}
     read_single_file(file_path, results)
     
     if results:
         return results
-    else:  
+    else:
         return make_response(f"File '{file_name}' not found.", 404)
 
 @app.route('/search')
@@ -77,4 +76,16 @@ def read_number_of_entries(file: str):
     except Exception as e:
         return make_response(e, 500)
 
+@app.route('/remote', methods=['POST'])
+def receive_data():
+    data = request.get_json()
 
+    # Process the received data
+    if data:
+        resp = make_remote_call(data)
+        if "ERROR" in resp:
+            return make_response(f"Error making request to host {data.get("host")}: { resp['ERROR']}", 400)
+    else:
+        return make_response("Invalid payload.", 400)
+    # Return a response
+    return resp

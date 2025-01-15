@@ -49,7 +49,7 @@ def read_single_file(file_path: str, all_log_entries: dict) -> None:
             all_log_entries["ERROR"] = f"There were no entries in {file_path}."
 
     except Exception as e:
-        all_log_entries["ERROR"] = f"Error reading: {file_path}. Won't be included in the response."
+        print(f"Error reading: {file_path}. Won't be included in the response.")
 
 def read_n_log_entries(file_name: str, n_entries: int) -> list:
     """
@@ -76,7 +76,7 @@ def read_n_log_entries(file_name: str, n_entries: int) -> list:
                     count += 1
             else:
                 break
-    return entries
+    return {file_path: entries}
 
 def _read_log_lines(file_path: str) -> Generator[str]:
     """
