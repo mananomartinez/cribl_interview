@@ -13,6 +13,7 @@ def read_all_log_files(n_entries: int = 0) -> list:
 
     all_log_entries = {}
     tasks = []
+
     # Traverse directory and read each log file in a separate thread
     with ThreadPoolExecutor() as executor:
         for root, _, files in os.walk(log_directory):
@@ -20,9 +21,11 @@ def read_all_log_files(n_entries: int = 0) -> list:
                 file_path = os.path.join(root, file)
                 task = executor.submit(read_single_file, file_path, all_log_entries)
                 tasks.append(task)
+
         # Wait for each file search task to complete
         for task in tasks:
             task.result()
+    
     # Display aggregated logs
     return all_log_entries
 
