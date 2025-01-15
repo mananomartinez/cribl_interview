@@ -3,6 +3,44 @@
 ## Introduction
 This is an assignment as part of the engineering interview process for Cribl. The definition of this project can be found in [this file ](docs/Cribl_log_collection_assignment.pdf)
 
+## Setup and execution
+### Virtual environent
+When running locally, it is recommended to run this code in a virtual environemt, such as pipenv to avoid installing dependencies on the main python library. For that, it is necessary to install the module `pipenv`. This can be done one of two ways, and both make it available to all projects.
+
+1. Directly with `pip` from the command line, using the command `pip install pipenv` (Note that this could fail, if Python is managed by OS.)
+2. Using a package manager, such as `homebrew`. For example, `brew install pipenv`
+
+Once installed, navigate to the top of directory of this project in a terminal and issue the command `pip shell` to create and switch the context of the terminal to the new virtual environment. 
+
+### Install dependencies
+Once in a virtual environment, install the necessary dependencies by simply run the following command in the terminal. 
+`pip install -r requirements.txt`
+
+### Execution
+- Navigate to the root of this project in the terminal
+- Ensure that all dependecies have been installed
+- Execute the command `flask --app ./src/parser/log_server.py run`
+
+This will run the server on the default port, `5000`. 
+
+#### Running multiple servers.
+It is possible to run multiple instances of this server on the same machine. To do so, the port number needs to change for each instance. 
+
+To achieve this, simply add `--port=` to the end of the command. For example: `flask --app ./src/parser/log_server.py run --port=8000`
+
+### Optional
+To change the log directory to parse from `/var/log`, set the `LOG_DIRECTORY` environment variable before running the server. Otherwise, `/var/log` will be the default. 
+
+## Testing
+
+To run the unit tests, use the `coverage` module by entering the following command at the root level of this project in a terminal
+
+`coverage run -m pytest ./tests/unit`
+
+To see how much coverage the unit tests have, you can run the command
+
+`coverage report -m`
+
 ## Design 
 Given the vague nature of the assignment, the approach for this assignment was to focus on the Minimal Viable Product (MVP). This means that the focus is on implementing the most basic functionality with a solid foundation in performance and maintainability for later expansion of features.
 
@@ -127,41 +165,3 @@ This endpoint returns a message about the server.
         }
     }
 ```
-
-## Setup and execution
-### Virtual environent
-When running locally, it is recommended to run this code in a virtual environemt, such as pipenv to avoid installing dependencies on the main python library. For that, it is necessary to install the module `pipenv`. This can be done one of two ways, and both make it available to all projects.
-
-1. Directly with `pip` from the command line, using the command `pip install pipenv` (Note that this could fail, if Python is managed by OS.)
-2. Using a package manager, such as `homebrew`. For example, `brew install pipenv`
-
-Once installed, navigate to the top of directory of this project in a terminal and issue the command `pip shell` to create and switch the context of the terminal to the new virtual environment. 
-
-### Install dependencies
-Once in a virtual environment, install the necessary dependencies by simply run the following command in the terminal. 
-`pip install -r requirements.txt`
-
-### Execution
-- Navigate to the root of this project in the terminal
-- Ensure that all dependecies have been installed
-- Execute the command `flask --app ./src/parser/log_server.py run`
-
-This will run the server on the default port, `5000`. 
-
-#### Running multiple servers.
-It is possible to run multiple instances of this server on the same machine. To do so, the port number needs to change for each instance. 
-
-To achieve this, simply add `--port=` to the end of the command. For example: `flask --app ./src/parser/log_server.py run --port=8000`
-
-### Optional
-To change the log directory to parse from `/var/log`, set the `LOG_DIRECTORY` environment variable before running the server. Otherwise, `/var/log` will be the default. 
-
-## Testing
-
-To run the unit tests, use the `coverage` module by entering the following command at the root level of this project in a terminal
-
-`coverage run -m pytest ./tests/unit`
-
-To see how much coverage the unit tests have, you can run the command
-
-`coverage report -m`
