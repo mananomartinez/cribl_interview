@@ -129,7 +129,7 @@ class TestParseLogs(unittest.TestCase):
         n_entries = 1
         result = read_n_log_entries(file_name, n_entries)
 
-        expected = ['Final log line.']
+        expected = {'/var/log/file.log': ['Final log line.']}
         self.assertEqual(result, expected)
 
 

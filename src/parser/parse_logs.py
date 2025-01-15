@@ -3,11 +3,16 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Generator
 
 
-def read_all_log_files(n_entries: int = 0) -> list:
+def read_all_log_files() -> list:
     """
-    Traverses a directory and parses every log file within it. 
-    Returns a list of dictionaries, each of which uses the file path
-    as the key and the logs as list of entries.
+    This function traverses the directory specified by the environment variable 
+    `LOG_DIRECTORY` (or '/var/log' by default) and reads each log file. It uses a 
+    thread pool to read the log files concurrently, and aggregates the log entries 
+    into a dictionary.
+
+    Returns:
+        list: A list of aggregated log entries from all the log files found in the 
+              specified log directory. 
     """
     log_directory = os.environ.get('LOG_DIRECTORY', '/var/log')
 
@@ -31,10 +36,15 @@ def read_all_log_files(n_entries: int = 0) -> list:
 
 def read_single_file(file_path: str, all_log_entries: dict) -> None:
     """
-    Parses a single file in the /var/log directory.     
-    It is assumed that each log entry ends with a new line.
-    
-    Populates the 'all_log_entries' dictionary with the log entries per file. 
+    Reads a single log file and stores its contents in a provided dictionary.
+    Each line from the file is collected and added to a list, which is then 
+    associated with the file path in the dictionary.
+
+    Parameters:
+      - file_path (str): The path to the log file to be read.
+      - all_log_entries (dict): A dictionary to store the log entries. 
+                                The file path is used as the key, and a list of log lines is the value.
+
     """
     file_entries = []
 
@@ -49,13 +59,21 @@ def read_single_file(file_path: str, all_log_entries: dict) -> None:
             all_log_entries["ERROR"] = f"There were no entries in {file_path}."
 
     except Exception as e:
-        all_log_entries["ERROR"] = f"Error reading: {file_path}. Won't be included in the response."
+        print(f"Error reading: {file_path}. Won't be included in the response.")
 
 def read_n_log_entries(file_name: str, n_entries: int) -> list:
     """
-    Retrieves N number of entries in the specified file. 
-    
-    Returns a list of the entries, with the latest entry first
+    Reads up to a specified number of log entries from a given log file. 
+    The method ensures that only the most recent entries are returned, 
+    up to the maximum number specified.
+
+    Parameters:
+      - file_name (str): The name of the log file to read. 
+      - n_entries (int): The maximum number of log entries to read from the file.
+
+    Returns:
+      - dict: A dictionary with the file path as the key and a list of up to `n_entries` log entries as the value.
+
     """
     count = 0
     entries = []
@@ -76,16 +94,19 @@ def read_n_log_entries(file_name: str, n_entries: int) -> list:
                     count += 1
             else:
                 break
-    return entries
+    return {file_path: entries}
 
 def _read_log_lines(file_path: str) -> Generator[str]:
     """
-    Parses a log file and returns every line ordered by the latest first.
-    It reads the file from the last line to the first, assuming that logs
-    use an append model to adding log entries. 
-    Assumes each log entry ends with a new line.
-    
-    Yields a generator with every line it finds
+    Reads a log file in reverse order and yields each line from the end to the beginning. 
+    This method efficiently reads large log files by processing chunks of data in reverse 
+    without loading the entire file into memory.
+
+    Parameters:
+      - file_path (str): The path to the log file to be read.
+
+    Yields:
+      - str: Each line from the log file, starting from the last line and working backwards to the first.
     """
 
     chunk_size = 1024
