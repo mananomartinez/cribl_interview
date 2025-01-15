@@ -1,9 +1,58 @@
 import unittest
 from unittest.mock import patch, mock_open, MagicMock
 
-from parser import read_single_file, read_n_log_entries
+from parser import read_single_file, read_n_log_entries, read_all_log_files
 
 class TestParseLogs(unittest.TestCase):
+
+    @patch('os.environ.get')
+    @patch('os.walk')
+    @patch('builtins.open', new_callable=mock_open)
+    def test_read_all_log_files_success(self, mock_open_fn, mock_os_walk, mock_environ):
+        
+        # Mock the return values
+        file_content = b'This is a log line.\nAnother log line.\nFinal log line.\n'
+        current_position = len(file_content)
+        mock_environ.return_value = '/mock/log/directory'
+        mock_os_walk.return_value = [
+            ('/mock/log/directory', [], ['log1.txt', 'log2.txt']),
+        ]
+        mock_file_handle = mock_open_fn.return_value
+        mock_file_handle.seek = MagicMock()
+        mock_file_handle.tell = MagicMock(return_value=len(file_content))
+
+        def read_side_effect(size=-1):
+            nonlocal current_position
+            if size == -1:
+                size = len(file_content) - current_position
+            end_position = current_position + size
+            chunk = file_content[current_position:end_position]
+            current_position = end_position
+            return chunk
+
+        def seek_side_effect(pos, whence=0):
+            nonlocal current_position
+            if whence == 0:
+                current_position = pos
+            elif whence == 1:
+                current_position += pos
+            elif whence == 2:
+                current_position = len(file_content) + pos
+            return current_position
+
+        mock_file_handle.read = MagicMock(side_effect=read_side_effect)
+        mock_file_handle.seek = MagicMock(side_effect=seek_side_effect)
+        mock_file_handle.tell = MagicMock(side_effect=lambda: current_position)
+
+        # Run the function
+        result = read_all_log_files()
+
+        # Assertions
+        self.assertEqual(len(result), 2)
+        self.assertIn('/mock/log/directory/log1.txt', result)
+        self.assertIn('/mock/log/directory/log2.txt', result)
+        self.assertEqual(result['/mock/log/directory/log1.txt'], ['Final log line.', 'Another log line.', 'This is a log line.'])
+        self.assertEqual(result['/mock/log/directory/log2.txt'], ['Final log line.', 'Another log line.', 'This is a log line.'])
 
     @patch('os.environ.get')
     @patch('builtins.open', new_callable=MagicMock)
